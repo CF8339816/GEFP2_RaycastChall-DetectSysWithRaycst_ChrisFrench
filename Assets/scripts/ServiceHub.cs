@@ -7,14 +7,11 @@ using UnityEngine;
 
 public class ServiceHub : MonoBehaviour
 {
-
     public static ServiceHub Instance { get; private set; }
-
 
     [Header("System References")]
     public playercontroler playerController;
  
-
     private void Awake()
     {
         #region Singleton Pattern
@@ -31,6 +28,4 @@ public class ServiceHub : MonoBehaviour
 
         #endregion
     }
-
-
 }

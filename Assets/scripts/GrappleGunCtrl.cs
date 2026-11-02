@@ -1,6 +1,6 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GrappleGunCtrl : MonoBehaviour
 {
@@ -8,159 +8,147 @@ public class GrappleGunCtrl : MonoBehaviour
     public LineRenderer lineRender;
     public Transform barrel;
     public Transform firstPersonCam;
-    public Transform character;
+
     public playercontroler playerScript;
     public LayerMask Grappleable;
-    public TextMeshProUGUI textGrappleGun;
+    public CharacterController characterController;
+
     [Header("Settings")]
     public float maxDistance = 100f;
     public float pullSpeed = 200f;
-    //public GameObject character.LineRenderer;
+
     [Header("Crosshair Settings")]
-    public Image canGrappleCrosshair;
-    public Image NormalDotSite;
+
+
+    public Image Crosshairs;
     public Image Grapple;
     public Image Pull;
+
     private Vector3 grapplePoint;
-    // private SpringJoint joint;
     private bool isPullingPlayer = false;
     private bool isPullingObject = false;
     private Rigidbody targetBody;
-
     void Start()
     {
-
-        if (canGrappleCrosshair != null)
-        {
-         canGrappleCrosshair.enabled = false;
-
-        NormalDotSite.enabled = true;
-        }
+        ResetCrosshairUI();
     }
     void Update()
     {
 
-        UpdateCrosshairVisibility();
-
+        if (!isPullingPlayer && !isPullingObject)
+        {
+            UpdateCrosshairVisibility();
+        }
 
         if (Input.GetMouseButtonDown(2)) StartPullPlayer();
         if (Input.GetMouseButtonUp(2)) StopGrapple();
-
-
         if (Input.GetMouseButtonDown(1)) StartPullObject();
         if (Input.GetMouseButtonUp(1)) StopGrapple();
     }
-
     void LateUpdate()
     {
-
-
         if (isPullingPlayer)
         {
             DrawRope(grapplePoint);
-            character.position = Vector3.MoveTowards(character.position, grapplePoint, pullSpeed * Time.deltaTime);
-            if (Vector3.Distance(character.position, grapplePoint) < 1.5f) StopGrapple();
-        }
+            Vector3 direction = (grapplePoint - characterController.transform.position).normalized;
+            characterController.Move(direction * pullSpeed * Time.deltaTime);
 
-        if (isPullingObject && targetBody != null)
-        {
-            DrawRope(targetBody.position);
-
-            targetBody.position = Vector3.MoveTowards(targetBody.position, barrel.position, pullSpeed * Time.deltaTime);
-
-            targetBody.linearVelocity = Vector3.zero;
-
-            if (Vector3.Distance(targetBody.position, barrel.position) < 1.5f) StopGrapple();
-        }
-
-
-    }
-
-
-    void UpdateCrosshairVisibility()
-    {
-
-        if (canGrappleCrosshair == null ) return;
-        {
-            if( !playerScript.PowerOn)
+            if (Vector3.Distance(characterController.transform.position, grapplePoint) < 1.5f)
             {
-                canGrappleCrosshair.enabled = false;
-                return;
-
+                StopGrapple();
             }
-            
-            
-            bool canGrapple = Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable);
-
-            canGrappleCrosshair.enabled = canGrapple;
-
-           
-
+            if (isPullingObject && targetBody != null)
+            {
+                DrawRope(targetBody.position);
+                targetBody.position = Vector3.MoveTowards(targetBody.position, barrel.position, pullSpeed * Time.deltaTime);
+                targetBody.linearVelocity = Vector3.zero;
+                if (Vector3.Distance(targetBody.position, barrel.position) < 1.5f) StopGrapple();
+            }
         }
-
-
     }
-    void StartPullPlayer()
+    public void UpdateCrosshairVisibility()
+    {
+        if (playerScript != null && !playerScript.PowerOn)
+        {
+            ResetCrosshairUI();
+            return;
+        }
+        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
+        {
+            Debug.Log($"Raycast hit: {hit.collider.name} with tag: {hit.collider.tag}");
+
+            if (hit.collider.tag == "Grapplepoint")
+            {
+                if (Crosshairs != null) Crosshairs.enabled = false;
+                if (Grapple != null) Grapple.enabled = true;
+                if (Pull != null) Pull.enabled = false;
+            }
+            else if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            {
+                if (Crosshairs != null) Crosshairs.enabled = false;
+                if (Grapple != null) Grapple.enabled = false;
+                if (Pull != null) Pull.enabled = true;
+            }
+            else
+            {
+                ResetCrosshairUI();
+            }
+        }
+        else
+        {
+            ResetCrosshairUI();
+        }
+    }
+    public void StartPullPlayer()
     {
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
-            if (hit.collider.CompareTag("GrapplePoint"))
+            if (hit.collider.tag == ("Grapplepoint"))
             {
-                canGrappleCrosshair.enabled = false;
-                Grapple.enabled = true;
+
+                if (Crosshairs != null) Crosshairs.enabled = false;
+                if (Grapple != null) Grapple.enabled = true;
+                if (Pull != null) Pull.enabled = false;
+
                 grapplePoint = hit.point;
                 isPullingPlayer = true;
                 lineRender.positionCount = 2;
             }
-            else
-            {
-                canGrappleCrosshair.enabled = true;
-                Grapple.enabled = false;
-                Pull.enabled = false;
-            }
         }
     }
-    void StartPullObject()
+    public void StartPullObject()
     {
-        if ( Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
-        {
-
-            if (hit.collider.CompareTag("Pullable") && hit.collider.GetComponent<Rigidbody>())
+        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
+        {           
+            if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
             {
-                canGrappleCrosshair.enabled = false;
-                Grapple.enabled = true;
-                targetBody = hit.collider.GetComponent<Rigidbody>();
+                if (Crosshairs != null) Crosshairs.enabled = false;
+                if (Grapple != null) Grapple.enabled = false;
+                if (Pull != null) Pull.enabled = true;
+                targetBody = hit.collider.GetComponentInParent<Rigidbody>();
                 isPullingObject = true;
                 lineRender.positionCount = 2;
             }
-
-            else
-            {
-                canGrappleCrosshair.enabled = true;
-
-                Grapple.enabled = false;
-                Pull.enabled = false;
-
-            }
         }
     }
-
-
-    void StopGrapple()
+    public void StopGrapple()
     {
-        lineRender.positionCount = 0;
         isPullingPlayer = false;
         isPullingObject = false;
         targetBody = null;
         lineRender.positionCount = 0;
 
+        ResetCrosshairUI();
     }
-
-
-    void DrawRope(Vector3 targetPos)
+    public void ResetCrosshairUI()
+    {
+        if (Crosshairs != null) Crosshairs.enabled = true;
+        if (Grapple != null) Grapple.enabled = false;
+        if (Pull != null) Pull.enabled = false;
+    }
+    public void DrawRope(Vector3 targetPos)
     {
         lineRender.SetPosition(0, barrel.position);
         lineRender.SetPosition(1, targetPos);
     }
 }
-   

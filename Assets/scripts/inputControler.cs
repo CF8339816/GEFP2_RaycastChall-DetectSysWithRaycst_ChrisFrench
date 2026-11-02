@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class inputcontroler : MonoBehaviour
 {
-
     [SerializeField] playercontroler CharacterController;
     [SerializeField] camLookControler CameraController;
     public InputAction moveAction;
@@ -10,7 +9,6 @@ public class inputcontroler : MonoBehaviour
     public InputAction jumpAction;
     public InputAction sprintAction;
     public InputAction crouchAction;
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -20,7 +18,6 @@ public class inputcontroler : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump"); //                          ||
         sprintAction = InputSystem.actions.FindAction("Sprint"); //                           ||
         crouchAction = InputSystem.actions.FindAction("Crouch"); //                          ||
-
 
         Cursor.visible = false;
     }
