@@ -57,12 +57,17 @@ public class GrappleGunCtrl : MonoBehaviour
             {
                 StopGrapple();
             }
-            if (isPullingObject && targetBody != null)
+        } 
+
+        if (isPullingObject && targetBody != null)
+        {
+            DrawRope(targetBody.position);
+            targetBody.position = Vector3.MoveTowards(targetBody.position, barrel.position, pullSpeed * Time.deltaTime);
+            targetBody.linearVelocity = Vector3.zero;
+
+            if (Vector3.Distance(targetBody.position, barrel.position) < 1.5f)
             {
-                DrawRope(targetBody.position);
-                targetBody.position = Vector3.MoveTowards(targetBody.position, barrel.position, pullSpeed * Time.deltaTime);
-                targetBody.linearVelocity = Vector3.zero;
-                if (Vector3.Distance(targetBody.position, barrel.position) < 1.5f) StopGrapple();
+                StopGrapple();
             }
         }
     }
@@ -119,15 +124,20 @@ public class GrappleGunCtrl : MonoBehaviour
     public void StartPullObject()
     {
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
-        {           
+        {
+            //if (hit.collider.tag == "Pullable" && hit.collider.TryGetComponent<Rigidbody>(out Rigidbody rb))
             if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
+
             {
+
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
                 if (Pull != null) Pull.enabled = true;
+                //targetBody = rb;
                 targetBody = hit.collider.GetComponentInParent<Rigidbody>();
                 isPullingObject = true;
                 lineRender.positionCount = 2;
+
             }
         }
     }
