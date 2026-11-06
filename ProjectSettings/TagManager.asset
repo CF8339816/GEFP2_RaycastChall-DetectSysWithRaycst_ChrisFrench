@@ -12,6 +12,7 @@ TagManager:
   - ground
   - Pullable
   - Grapplepoint
+  - Switch
   layers:
   - Default
   - TransparentFX
