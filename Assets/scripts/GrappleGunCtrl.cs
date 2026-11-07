@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class GrappleGunCtrl : MonoBehaviour
+public class NewMonoBehaviourScript : MonoBehaviour
 {
+
     [Header("References")]
     public LineRenderer lineRender;
     public Transform barrel;
@@ -57,7 +58,7 @@ public class GrappleGunCtrl : MonoBehaviour
             {
                 StopGrapple();
             }
-        } 
+        }
 
         if (isPullingObject && targetBody != null)
         {
@@ -161,4 +162,17 @@ public class GrappleGunCtrl : MonoBehaviour
         lineRender.SetPosition(0, barrel.position);
         lineRender.SetPosition(1, targetPos);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
