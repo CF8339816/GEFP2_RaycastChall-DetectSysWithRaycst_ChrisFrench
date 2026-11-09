@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &96457983124000851
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5696904360520816379}
+  - component: {fileID: 3230703243929409402}
+  m_Layer: 0
+  m_Name: InteractionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5696904360520816379
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96457983124000851}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.18538, y: 0.125, z: 40.81633}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3230703243929409402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96457983124000851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a441c536fad5d084f8d3a67a0b355761, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction_Manager
+  lineRender: {fileID: 0}
+  barrel: {fileID: 0}
+  firstPersonCam: {fileID: 0}
+  playerScript: {fileID: 0}
+  Grappleable:
+    serializedVersion: 2
+    m_Bits: 64
+  Switches:
+    serializedVersion: 2
+    m_Bits: 128
+  characterController: {fileID: 0}
+  maxDistance: 100
+  pullSpeed: 200
+  Density: {fileID: 0}
+  Firework: {fileID: 0}
+  Crosshairs: {fileID: 0}
+  Grapple: {fileID: 0}
+  Pull: {fileID: 0}
+  prefabToSpawn: {fileID: 0}
+  spawnLocation: {fileID: 0}
+  interactFireworkKey: E
+  popupDenUI: {fileID: 0}
+  popupDenText: {fileID: 0}
+  densityManager: {fileID: 0}
+  interactDensityKey: P
+  popupFWUI: {fileID: 0}
+  popupFWText: {fileID: 0}
