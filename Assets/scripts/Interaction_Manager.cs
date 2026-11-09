@@ -12,12 +12,14 @@ public class Interaction_Manager : MonoBehaviour
     public playercontroler playerScript;
     public LayerMask Grappleable;
     public LayerMask Switches;
-  
+    public LayerMask combinedMask;
     public CharacterController characterController;
 
     [Header("Settings")]
-    public float maxDistance = 100f;
+    public float grappleRange = 100f;//longer range for grapple and pull
+    public float switchRange = 4f; // shorter range for button and switch
     public float pullSpeed = 200f;
+
 
     [Header("Crosshair Settings")]
 
@@ -27,59 +29,132 @@ public class Interaction_Manager : MonoBehaviour
     public Image Grapple;
     public Image Pull;
 
-    private Vector3 grapplePoint;
-    private bool isPullingPlayer = false;
-    private bool isPullingObject = false;
-    private Rigidbody targetBody;
-
-    [Header("Settings")]
+    [Header("Switches")]
     public GameObject prefabToSpawn;
     public Transform spawnLocation;
-    public string interactFireworkKey = "E";
+    //public string interactFireworkKey = "E";
+    public DensityManager densityManager;
+    //public string interactDensityKey = "P";
+    //public KeyCode interactFireworkKey = KeyCode.E;
+    //public KeyCode interactDensityKey = KeyCode.P;
 
     [Header("UI Reference")]
     public GameObject popupDenUI;
     public TextMeshProUGUI popupDenText;
-
-    private bool isPlayerNear = false;
-
-    [Header("Settings")]
-
-    public DensityManager densityManager;
-    public string interactDensityKey = "P";
-
-    [Header("UI Reference")]
     public GameObject popupFWUI;
     public TextMeshProUGUI popupFWText;
 
+    private Vector3 grapplePoint;
+    private bool isPullingPlayer = false;
+    private bool isPullingObject = false;
+    private Rigidbody targetBody;
+  
+    private bool lookingAtFireworkSwitch = false;
+    private bool lookingAtDensitySwitch = false;
 
 
     void Start()
     {
         ResetCrosshairUI();
+        HidePopups();
+        //if (popupDenUI != null) popupDenUI.SetActive(false);
+    }
+    private void HidePopups()
+    {
+        if (popupFWUI != null) popupFWUI.SetActive(false);
         if (popupDenUI != null) popupDenUI.SetActive(false);
     }
+
     void Update()
     {
         if (!isPullingPlayer && !isPullingObject)
         {
+            CheckTargets();
             UpdateCrosshairVisibility();
         }
 
         if (Input.GetMouseButtonDown(2)) StartPullPlayer();
-        if (Input.GetMouseButtonUp(2)) StopGrapple();
+        if (Input.GetMouseButtonUp(2) && isPullingPlayer) StopGrapple();
         if (Input.GetMouseButtonDown(1)) StartPullObject();
-        if (Input.GetMouseButtonUp(1)) StopGrapple();
+        if (Input.GetMouseButtonUp(1) && isPullingObject) StopGrapple();
 
-        if (isPlayerNear && Input.GetKeyDown(KeyCode.E))
+        if (Input.GetMouseButtonDown(0))
         {
-            InteractFirework();
-        }
+            if (lookingAtFireworkSwitch )
+            {
+                InteractFirework();
+            }
 
-        if (isPlayerNear && Input.GetKeyDown(KeyCode.P))
-        {
-            InteractDensity();
+            if (lookingAtDensitySwitch )
+            {
+                InteractDensity();
+            }
         }
+    }
+    private void CheckTargets()
+    {
+        lookingAtFireworkSwitch = false;
+        lookingAtDensitySwitch = false;
+        HidePopups();
+                
+        combinedMask = Grappleable | Switches;// combines both layer masks for distance checking
+
+        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
+        {
+            
+            if (hit.distance <= switchRange)// checks for  hitting a sswitch in range
+            {
+                if (hit.collider.CompareTag("Trigger"))
+                {
+                    lookingAtFireworkSwitch = true;
+                    UpdateCrosshairVisibility();
+                    if (popupFWUI != null && popupFWText != null)
+                    {
+                        popupFWText.text = $"Left-Click to Interact";
+                        popupFWUI.SetActive(true);
+                    }
+                    return;
+                }
+                else if (hit.collider.CompareTag("Switch"))
+                {
+                    lookingAtDensitySwitch = true;
+                    UpdateCrosshairVisibility();
+                    if (popupDenUI != null && popupDenText != null)
+                    {
+                        popupDenText.text = $"Left-Click to \nde-/-phase\n blocks";
+                        popupDenUI.SetActive(true);
+                    }
+                    return;
+                }
+            }
+
+            if (hit.collider.CompareTag("Grapplepoint"))// Checks for longer range targets if no short range ones found
+            {
+            
+                UpdateCrosshairVisibility();
+                if (popupFWUI != null && popupFWText != null)
+                {
+                    popupFWText.text = $"Middle click to grapple";
+                    popupFWUI.SetActive(true);
+                }
+
+
+                return;
+            }
+            else if (hit.collider.CompareTag("Pullable") && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            {
+               
+                UpdateCrosshairVisibility();
+                if (popupDenUI != null && popupDenText != null)
+                {
+                    popupDenText.text = $"right click to pull";
+                    popupDenUI.SetActive(true);
+                }
+                return;
+            }
+        }        
+        ResetCrosshairUI(); //ensures reset crosshairs if none found.
+
     }
     void LateUpdate()
     {
@@ -107,14 +182,15 @@ public class Interaction_Manager : MonoBehaviour
             }
         }
     }
-    public void UpdateCrosshairVisibility()
+    void UpdateCrosshairVisibility()
     {
         if (playerScript != null && !playerScript.PowerOn)
         {
             ResetCrosshairUI();
             return;
         }
-        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
+        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
+        //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
             Debug.Log($"Raycast hit: {hit.collider.name} with tag: {hit.collider.tag}");
 
@@ -126,7 +202,7 @@ public class Interaction_Manager : MonoBehaviour
                 if (Density != null) Density.enabled = false;
                 if (Firework != null) Firework.enabled = false;
             }
-            else if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            else if (hit.collider.tag == "Pullable")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
             {
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
@@ -134,21 +210,23 @@ public class Interaction_Manager : MonoBehaviour
                 if (Density != null) Density.enabled = false;
                 if (Firework != null) Firework.enabled = false;
             }
-            else if (hit.collider.tag == "Trigger" && hit.collider.GetComponentInParent<Rigidbody>() != null)
-            {
+            else if (hit.collider.tag == "Trigger")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            { 
+                if (Firework != null) Firework.enabled = true;
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
                 if (Pull != null) Pull.enabled = false;
                 if (Density != null) Density.enabled = false;
-                if (Firework != null) Firework.enabled = true;
+               
 
             }
-            else if (hit.collider.tag == "Switch" && hit.collider.GetComponentInParent<Rigidbody>() != null)
-            {
+            else if (hit.collider.tag == "Switch")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            { 
+                if (Density != null) Density.enabled = true;
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
                 if (Pull != null) Pull.enabled = false;
-                if (Density != null) Density.enabled = true;
+               
                 if (Firework != null) Firework.enabled = false;
 
             }
@@ -162,9 +240,10 @@ public class Interaction_Manager : MonoBehaviour
             ResetCrosshairUI();
         }
     }
-    public void StartPullPlayer()
+    void StartPullPlayer()
     {
-        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
+        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
+        //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
             if (hit.collider.tag == ("Grapplepoint"))
             {
@@ -181,9 +260,10 @@ public class Interaction_Manager : MonoBehaviour
             }
         }
     }
-    public void StartPullObject()
+     void StartPullObject()
     {
-        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
+        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
+            //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
             //if (hit.collider.tag == "Pullable" && hit.collider.TryGetComponent<Rigidbody>(out Rigidbody rb))
             if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
@@ -201,7 +281,7 @@ public class Interaction_Manager : MonoBehaviour
             }
         }
     }
-    public void StopGrapple()
+    void StopGrapple()
     {
         isPullingPlayer = false;
         isPullingObject = false;
@@ -210,7 +290,7 @@ public class Interaction_Manager : MonoBehaviour
 
         ResetCrosshairUI();
     }
-    public void ResetCrosshairUI()
+     void ResetCrosshairUI()
     {
         if (Crosshairs != null) Crosshairs.enabled = true;
         if (Grapple != null) Grapple.enabled = false;
@@ -218,7 +298,7 @@ public class Interaction_Manager : MonoBehaviour
         if (Density != null) Density.enabled = false;
         if (Firework != null) Firework.enabled = false;
     }
-    public void DrawRope(Vector3 targetPos)
+    void DrawRope(Vector3 targetPos)
     {
         lineRender.SetPosition(0, barrel.position);
         lineRender.SetPosition(1, targetPos);
@@ -226,63 +306,11 @@ public class Interaction_Manager : MonoBehaviour
     void InteractFirework()
     {
         Instantiate(prefabToSpawn, spawnLocation.position, spawnLocation.rotation);
-
         popupFWUI.SetActive(false);
-
     }
-
-
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Switches))
-        {
-            if (other.CompareTag("Player"))
-            {
-                isPlayerNear = true;
-                if (popupFWUI != null)
-                {
-                    popupFWText.text = "Press [" +  interactFireworkKey  + "] to Interact";
-                    popupFWUI.SetActive(true);
-                }
-            }
-            else if (other.CompareTag("Player"))
-            {
-                isPlayerNear = true;
-                if (popupDenUI != null)
-                {
-                    popupDenText.text = "Press [" + interactDensityKey + "] to \nde-/-phase\n blocks ";
-                    popupDenUI.SetActive(true);
-                }
-            }
-        }
-
-      
-    }
-    
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerNear = false;
-            if (popupFWUI != null) popupFWUI.SetActive(false);
-        }
-
-        else if (other.CompareTag("Player"))
-        {
-            isPlayerNear = false;
-            if (popupDenUI != null) popupDenUI.SetActive(false);
-        }
-    }
-
 
     void InteractDensity()
     {
-
         densityManager.DensityShifter();
-
     }
-
-   
-
 }

@@ -5369,6 +5369,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 4219259249977282976, guid: 185a005a53568494492cedc13798140a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -18.6
+      objectReference: {fileID: 0}
     - target: {fileID: 5044916522243041144, guid: 185a005a53568494492cedc13798140a, type: 3}
       propertyPath: popupText
       value: 
