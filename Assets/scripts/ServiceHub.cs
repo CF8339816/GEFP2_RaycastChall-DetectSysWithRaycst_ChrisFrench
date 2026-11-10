@@ -8,7 +8,7 @@ using UnityEngine;
 public class ServiceHub : MonoBehaviour
 {
     public static ServiceHub Instance { get; private set; }
-    //public static Interaction_Manager interaction_Manager { get; private set; }
+
     [Header("System References")]
     public playercontroler playerController;
     public Interaction_Manager interaction_Manager;

@@ -20,9 +20,7 @@ public class Interaction_Manager : MonoBehaviour
     public float switchRange = 4f; // shorter range for button and switch
     public float pullSpeed = 200f;
 
-
     [Header("Crosshair Settings")]
-
     public Image Density;
     public Image Firework;
     public Image Crosshairs;
@@ -48,11 +46,9 @@ public class Interaction_Manager : MonoBehaviour
     private bool isPullingPlayer = false;
     private bool isPullingObject = false;
     private Rigidbody targetBody;
-  
+
     private bool lookingAtFireworkSwitch = false;
     private bool lookingAtDensitySwitch = false;
-
-
     void Start()
     {
         ResetCrosshairUI();
@@ -64,7 +60,6 @@ public class Interaction_Manager : MonoBehaviour
         if (popupFWUI != null) popupFWUI.SetActive(false);
         if (popupDenUI != null) popupDenUI.SetActive(false);
     }
-
     void Update()
     {
         if (!isPullingPlayer && !isPullingObject)
@@ -80,12 +75,12 @@ public class Interaction_Manager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (lookingAtFireworkSwitch )
+            if (lookingAtFireworkSwitch)
             {
                 InteractFirework();
             }
 
-            if (lookingAtDensitySwitch )
+            if (lookingAtDensitySwitch)
             {
                 InteractDensity();
             }
@@ -96,12 +91,11 @@ public class Interaction_Manager : MonoBehaviour
         lookingAtFireworkSwitch = false;
         lookingAtDensitySwitch = false;
         HidePopups();
-                
+
         combinedMask = Grappleable | Switches;// combines both layer masks for distance checking
 
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
         {
-            
             if (hit.distance <= switchRange)// checks for  hitting a sswitch in range
             {
                 if (hit.collider.CompareTag("Trigger"))
@@ -130,20 +124,16 @@ public class Interaction_Manager : MonoBehaviour
 
             if (hit.collider.CompareTag("Grapplepoint"))// Checks for longer range targets if no short range ones found
             {
-            
                 UpdateCrosshairVisibility();
                 if (popupFWUI != null && popupFWText != null)
                 {
                     popupFWText.text = $"Middle click to grapple";
                     popupFWUI.SetActive(true);
                 }
-
-
                 return;
             }
             else if (hit.collider.CompareTag("Pullable") && hit.collider.GetComponentInParent<Rigidbody>() != null)
             {
-               
                 UpdateCrosshairVisibility();
                 if (popupDenUI != null && popupDenText != null)
                 {
@@ -152,9 +142,8 @@ public class Interaction_Manager : MonoBehaviour
                 }
                 return;
             }
-        }        
+        }
         ResetCrosshairUI(); //ensures reset crosshairs if none found.
-
     }
     void LateUpdate()
     {
@@ -184,7 +173,7 @@ public class Interaction_Manager : MonoBehaviour
     }
     void UpdateCrosshairVisibility()
     {
-        if (playerScript != null && !playerScript.PowerOn)
+        if (playerScript != null )
         {
             ResetCrosshairUI();
             return;
@@ -211,24 +200,20 @@ public class Interaction_Manager : MonoBehaviour
                 if (Firework != null) Firework.enabled = false;
             }
             else if (hit.collider.tag == "Trigger")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
-            { 
+            {
                 if (Firework != null) Firework.enabled = true;
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
                 if (Pull != null) Pull.enabled = false;
                 if (Density != null) Density.enabled = false;
-               
-
             }
             else if (hit.collider.tag == "Switch")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
-            { 
+            {
                 if (Density != null) Density.enabled = true;
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
                 if (Pull != null) Pull.enabled = false;
-               
                 if (Firework != null) Firework.enabled = false;
-
             }
             else
             {
@@ -247,7 +232,6 @@ public class Interaction_Manager : MonoBehaviour
         {
             if (hit.collider.tag == ("Grapplepoint"))
             {
-
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = true;
                 if (Pull != null) Pull.enabled = false;
@@ -260,10 +244,10 @@ public class Interaction_Manager : MonoBehaviour
             }
         }
     }
-     void StartPullObject()
+    void StartPullObject()
     {
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
-            //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
+        //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
             //if (hit.collider.tag == "Pullable" && hit.collider.TryGetComponent<Rigidbody>(out Rigidbody rb))
             if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
@@ -290,7 +274,7 @@ public class Interaction_Manager : MonoBehaviour
 
         ResetCrosshairUI();
     }
-     void ResetCrosshairUI()
+    void ResetCrosshairUI()
     {
         if (Crosshairs != null) Crosshairs.enabled = true;
         if (Grapple != null) Grapple.enabled = false;

@@ -6,13 +6,13 @@ public class playercontroler : MonoBehaviour
     [Header("References")]
     public CharacterController characterController;
     public Camera firstPersonCam; // Assign your main player camera here in Inspector
-    public Camera grappleCamera;
+    //public Camera grappleCamera;
 
     [Header("Movement Settings")]
     [SerializeField] float MoveSpeed = 10f;
     [SerializeField] float SprintSpeed = 15f;
     [SerializeField] float CrouchSpeed = 5f;
-    [SerializeField] float RotateSpeed = 5f;
+    //[SerializeField] float RotateSpeed = 5f;
     [SerializeField] float gravity = -9.8f;
     [SerializeField] float jumpHeight = 2f;
     [SerializeField] float StandHeight = 2f;
@@ -27,7 +27,7 @@ public class playercontroler : MonoBehaviour
 
     [Header("Status")]
     public bool isGrounded;
-    [SerializeField] public bool PowerOn;
+    //[SerializeField] public bool PowerOn;
 
     private Vector3 velocity;
     private bool isSprinting = false;
@@ -49,7 +49,7 @@ public class playercontroler : MonoBehaviour
         // Default speeds
         targetSpeed = MoveSpeed;
         currentHorizontalSpeed = MoveSpeed;
-        PowerOn = true;
+        //PowerOn = true;
     }
 
     void Update()
