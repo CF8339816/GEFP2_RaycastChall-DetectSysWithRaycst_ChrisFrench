@@ -30,11 +30,9 @@ public class Interaction_Manager : MonoBehaviour
     [Header("Switches")]
     public GameObject prefabToSpawn;
     public Transform spawnLocation;
-    //public string interactFireworkKey = "E";
+  
     public DensityManager densityManager;
-    //public string interactDensityKey = "P";
-    //public KeyCode interactFireworkKey = KeyCode.E;
-    //public KeyCode interactDensityKey = KeyCode.P;
+
 
     [Header("UI Reference")]
     public GameObject popupDenUI;
@@ -53,7 +51,7 @@ public class Interaction_Manager : MonoBehaviour
     {
         ResetCrosshairUI();
         HidePopups();
-        //if (popupDenUI != null) popupDenUI.SetActive(false);
+      
     }
     private void HidePopups()
     {
@@ -77,11 +75,13 @@ public class Interaction_Manager : MonoBehaviour
         {
             if (lookingAtFireworkSwitch)
             {
+                UpdateCrosshairVisibility();
                 InteractFirework();
             }
 
             if (lookingAtDensitySwitch)
             {
+                UpdateCrosshairVisibility();
                 InteractDensity();
             }
         }
@@ -173,13 +173,7 @@ public class Interaction_Manager : MonoBehaviour
     }
     void UpdateCrosshairVisibility()
     {
-        if (playerScript != null )
-        {
-            ResetCrosshairUI();
-            return;
-        }
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
-        //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
             Debug.Log($"Raycast hit: {hit.collider.name} with tag: {hit.collider.tag}");
 
@@ -191,7 +185,7 @@ public class Interaction_Manager : MonoBehaviour
                 if (Density != null) Density.enabled = false;
                 if (Firework != null) Firework.enabled = false;
             }
-            else if (hit.collider.tag == "Pullable")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            else if (hit.collider.tag == "Pullable")
             {
                 if (Crosshairs != null) Crosshairs.enabled = false;
                 if (Grapple != null) Grapple.enabled = false;
@@ -199,7 +193,7 @@ public class Interaction_Manager : MonoBehaviour
                 if (Density != null) Density.enabled = false;
                 if (Firework != null) Firework.enabled = false;
             }
-            else if (hit.collider.tag == "Trigger")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            else if (hit.collider.tag == "Trigger")
             {
                 if (Firework != null) Firework.enabled = true;
                 if (Crosshairs != null) Crosshairs.enabled = false;
@@ -207,7 +201,7 @@ public class Interaction_Manager : MonoBehaviour
                 if (Pull != null) Pull.enabled = false;
                 if (Density != null) Density.enabled = false;
             }
-            else if (hit.collider.tag == "Switch")// && hit.collider.GetComponentInParent<Rigidbody>() != null)
+            else if (hit.collider.tag == "Switch")
             {
                 if (Density != null) Density.enabled = true;
                 if (Crosshairs != null) Crosshairs.enabled = false;
@@ -228,7 +222,6 @@ public class Interaction_Manager : MonoBehaviour
     void StartPullPlayer()
     {
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
-        //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
             if (hit.collider.tag == ("Grapplepoint"))
             {
@@ -247,10 +240,8 @@ public class Interaction_Manager : MonoBehaviour
     void StartPullObject()
     {
         if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, grappleRange, combinedMask))
-        //if (Physics.Raycast(firstPersonCam.position, firstPersonCam.forward, out RaycastHit hit, maxDistance, Grappleable))
         {
-            //if (hit.collider.tag == "Pullable" && hit.collider.TryGetComponent<Rigidbody>(out Rigidbody rb))
-            if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
+              if (hit.collider.tag == "Pullable" && hit.collider.GetComponentInParent<Rigidbody>() != null)
 
             {
                 if (Crosshairs != null) Crosshairs.enabled = false;
@@ -258,7 +249,7 @@ public class Interaction_Manager : MonoBehaviour
                 if (Pull != null) Pull.enabled = true;
                 if (Density != null) Density.enabled = false;
                 if (Firework != null) Firework.enabled = false;
-                //targetBody = rb;
+              
                 targetBody = hit.collider.GetComponentInParent<Rigidbody>();
                 isPullingObject = true;
                 lineRender.positionCount = 2;
